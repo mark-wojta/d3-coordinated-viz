@@ -8,7 +8,7 @@ window.addEventListener('resize', function(event) {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function(){
     window.location.reload();
-  }, 500);
+  }, 5);
 });
 
 //a self-executing anonymous function to move to local scope
