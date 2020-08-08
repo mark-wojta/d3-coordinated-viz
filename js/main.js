@@ -1,7 +1,6 @@
 /* JavaScript by Mark Wojta, 2020 */
 // majority of JS credited to UW Wisconsin-Madison Department of Geography
 
-
 //refreshes page when page resized
 //credit: https://stackoverflow.com/questions/5836779/how-can-i-refresh-the-screen-on-browser-resize/18321223
 var resizeTimeout;
@@ -12,7 +11,7 @@ window.addEventListener('resize', function(event) {
   }, 10);
 });
 
-//First line of main.js...wrap everything in a self-executing anonymous function to move to local scope
+//a self-executing anonymous function to move to local scope
 (function(){
 
 //pseudo-global variables
@@ -45,21 +44,22 @@ var yScale = d3.scaleLinear()
 //begin script when window loads
 window.onload = setMap();
 
-//Example 1.3 line 4...set up choropleth map
+//sets up choropleth map
 function setMap(){
 
     //map frame dimensions
-    var width = window.innerWidth * 0.5,
+    var width = window.innerWidth * 0.485,
       height = 400;
 
     //create new svg container for the map
     var map = d3.select("body")
         .append("svg")
         .attr("class", "map")
+        .attr("preserveAspectRatio", "xMidYMid")
         .attr("width", width)
         .attr("height", height);
 
-    //create Albers equal area conic projection centered on southern Wisconsin
+    //create conic conformal projection centered on southern Wisconsin
     var projection = d3.geoConicConformal()
         .center([-91.4, 43.75])
         .rotate([-2, 0, 0])
@@ -84,7 +84,7 @@ function setMap(){
 
     		[births, states, wisconsin, counties] = data;
 
-        //place graticule on the map
+        //place water on the map with graticule function
         setGraticule(map, path);
 
         //translate countries TopoJSON
@@ -121,10 +121,6 @@ function setMap(){
     };
 }; //end of setMap()
 
-//Example 1.3 line 4...set up choropleth map
-function setDropdown(){
-
-}; //end of setMap()
 //function to create coordinated bar chart
 function setChart(births, colorScale){
 
@@ -158,11 +154,11 @@ function setChart(births, colorScale){
         .on("mouseout", dehighlight)
         .on("mousemove", moveLabel);
 
-    //below Example 2.2 line 31...add style descriptor to each rect
+    //add style descriptor to each rect
     var desc = bars.append("desc")
     .text('{"stroke": "none", "stroke-width": "0px"}');
 
-    //below Example 2.8...create a text element for the chart title
+    //create a text element for the chart title
     var chartTitle = chart.append("text")
         .attr("x", 20)
         .attr("y", 40)
@@ -212,10 +208,12 @@ function makeColorScale(data){
 
     //cluster data using ckmeans clustering algorithm to create natural breaks
     var clusters = ss.ckmeans(domainArray, 5);
+
     //reset domain array to cluster minimums
     domainArray = clusters.map(function(d){
         return d3.min(d);
     });
+
     //remove first value from domain array to create class breakpoints
     domainArray.shift();
 
@@ -237,6 +235,7 @@ function choropleth(props, colorScale){
     };
 };
 
+//function creates graticule for map area
 function setGraticule(map, path){
 	//create graticule generator
 	var graticule = d3.geoGraticule();
@@ -246,9 +245,9 @@ function setGraticule(map, path){
 		.datum(graticule.outline()) //bind graticule background
 		.attr("class", "gratBackground") //assign class for styling
 		.attr("d", path); //project graticule
-
 };
 
+//function joins csv to topojson layer
 function joinData(allCounties, births){
     //loop through csv to assign each set of csv attribute values to geojson county
     for (var i=0; i<births.length; i++){
@@ -276,6 +275,7 @@ function joinData(allCounties, births){
     return allCounties;
 };
 
+//function adds interactive abilities to topojson layer and associated data
 function setEnumerationUnits(allCounties, map, path, colorScale){
   	//add interactive Wisconsin counties to map
   	var usedCounties = map.selectAll(".usedCounties")
@@ -327,7 +327,7 @@ function createDropdown(births){
         .text(function(d){ return d });
 };
 
-//Example 1.4 line 14...dropdown change listener handler
+//dropdown change listener handler
 function changeAttribute(attribute, births){
     //change the expressed attribute
     expressed = attribute;
@@ -362,7 +362,7 @@ function changeAttribute(attribute, births){
             return choropleth(d.properties, colorScale)
         });
 
-    //Example 1.7 line 22...re-sort, resize, and recolor bars
+    //re-sort, resize, and recolor bars
     var bars = d3.selectAll(".bar")
         //re-sort bars
         .sort(function(a, b){
@@ -415,27 +415,28 @@ function highlight(props){
 
 //function to reset the element style on mouseout
 function dehighlight(props){
-   var selected = d3.selectAll("." + props.County)
-       .style("stroke", function(){
-           return getStyle(this, "stroke")
-       })
-       .style("stroke-width", function(){
-           return getStyle(this, "stroke-width")
-       });
+    var selected = d3.selectAll("." + props.County)
+        .style("stroke", function(){
+            return getStyle(this, "stroke")
+        })
+        .style("stroke-width", function(){
+            return getStyle(this, "stroke-width")
+        });
 
-  //remove info label
-  d3.select(".infolabel")
-      .remove();
+    //remove info label
+    d3.select(".infolabel")
+        .remove();
 
-   function getStyle(element, styleName){
-       var styleText = d3.select(element)
-           .select("desc")
-           .text();
+    //inner function retrieves element style
+    function getStyle(element, styleName){
+        var styleText = d3.select(element)
+            .select("desc")
+            .text();
 
-       var styleObject = JSON.parse(styleText);
+        var styleObject = JSON.parse(styleText);
 
-       return styleObject[styleName];
-   };
+        return styleObject[styleName];
+    };
 };
 
 //function to create dynamic label
