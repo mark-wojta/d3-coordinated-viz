@@ -9,7 +9,7 @@ window.addEventListener('resize', function(event) {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(function(){
     window.location.reload();
-  }, 500);
+  }, 10);
 });
 
 //First line of main.js...wrap everything in a self-executing anonymous function to move to local scope
@@ -398,7 +398,7 @@ function updateChart(bars, n, colorScale){
         //at the bottom of updateChart()...add text to chart title
         var chartTitle = d3.select(".chartTitle")
             .text(expressed)
-            .style("font-size", '1.3vw')
+            .style("font-size", '1.1vw')
             .attr("dy", -10)
             .attr("dx", 9.5);
 };
